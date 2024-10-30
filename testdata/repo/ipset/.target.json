@@ -1,0 +1,11 @@
+{
+	"ipset.conf": {
+    "origin": "{ETC}/ipset.conf"
+  },
+  "a.conf": {
+    "origin": "{ETC}/a.conf"
+  },
+  "b.conf": {
+    "origin": "{ETC}/b.conf"
+  }
+}

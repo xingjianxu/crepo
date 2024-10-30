@@ -1,0 +1,22 @@
+*nat
+:XRAY - [0:0]
+-A POSTROUTING -o ppp0 -j MASQUERADE
+
+-A XRAY -d 10.0.0.0/8 -j RETURN
+-A XRAY -d 100.64.0.0/10 -j RETURN
+-A XRAY -d 127.0.0.0/8 -j RETURN
+-A XRAY -d 169.254.0.0/16 -j RETURN
+-A XRAY -d 172.16.0.0/12 -j RETURN
+-A XRAY -d 192.0.0.0/24 -j RETURN
+-A XRAY -d 224.0.0.0/4 -j RETURN
+-A XRAY -d 240.0.0.0/4 -j RETURN
+-A XRAY -d 255.255.255.255/32 -j RETURN
+
+-A XRAY -p tcp -j REDIRECT --to-ports 5200
+-A XRAY -p udp -j REDIRECT --to-ports 5200
+
+#-A PREROUTING  -s 10.0.0.30 -j XRAY
+-A PREROUTING -m set --match-set GFW dst -j XRAY
+-A OUTPUT -m set --match-set GFW dst -j XRAY
+
+COMMIT
