@@ -17,7 +17,8 @@ class CRepo:
             args.owner = pwd.getpwuid(os.stat(self.args.repo_dir).st_uid).pw_name
         self.runner = Runner(args.dry_run, args.silent)
         self.run = self.runner.run
-        self.env = {"ETC": self.args.etc_dir}
+        self.etc_dir = os.path.join(self.args.root_dir, "etc")
+        self.env = {"ETC": self.etc_dir}
 
     def info(self, msg):
         if not self.args.silent:
@@ -32,8 +33,8 @@ class CRepo:
 
     def get_target_name_from_path(self, conf_path):
         target_name = None
-        if conf_path.startswith(self.args.etc_dir):
-            pathnames = conf_path[len(self.args.etc_dir) :].split("/")
+        if conf_path.startswith(self.etc_dir):
+            pathnames = conf_path[len(self.etc_dir) :].split("/")
             if len(pathnames) > 1:
                 target_name = pathnames[1]
             target_name = Path(target_name).stem
@@ -123,6 +124,7 @@ class CRepo:
             f"ln {conf_path} {origin_path}",
             lambda: os.symlink(conf_path, origin_path),
         )
+
         if "post" in conf_config:
             post_cmd = self.render_with_env(
                 conf_config["post"], {"ORIGIN": origin_path, "TARGET": target_name}
@@ -154,6 +156,7 @@ class CRepo:
         """
         crepo bk iptables.rules
         crepo -t iptables -v ros -n my-iptables.rules bk iptables.rules
+        crepo bk ~/.ssh/authorized_keys
         """
         for origin in self.args.origins:
             origin_path = os.path.abspath(origin)
@@ -245,7 +248,7 @@ def run_crepo(argv):
         "--repo-dir", default=(os.getenv("CREPO_ROOT") or "/.config-repo")
     )
     parser.add_argument("--owner")
-    parser.add_argument("--etc-dir", default="/etc")
+    parser.add_argument("--root-dir", default="/")
 
     parser.add_argument("-t", "--target")
     parser.add_argument("-v", "--variant")
