@@ -21,28 +21,41 @@ class TestCRepo(unittest.TestCase):
         self.test_data_root_dir = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "data"
         )
-        self.test_data_tmp_dir = tempfile.TemporaryDirectory().name
+        self.test_data_tmp_dir_obj = tempfile.TemporaryDirectory()
+        self.test_data_tmp_dir = self.test_data_tmp_dir_obj.name
         self.owner = "xingjian"
         self.root_dir = os.path.join(self.test_data_tmp_dir, "root")
         self.repo_dir = os.path.join(self.test_data_tmp_dir, "repo")
+        self.user = "tu"
+        self.user_home = self.root("home", self.user)
         self.default_args = [
             f"--repo-dir={self.repo_dir}",
             f"--owner={self.owner}",
             f"--root-dir={self.root_dir}",
+            f"--user={self.user}",
+            f"--user-home={self.user_home}",
             "--silent",
         ]
 
-    def root(self, path):
-        return os.path.join(self.root_dir, path)
+    def root(self, *paths):
+        return os.path.join(
+            self.root_dir,
+            *(path[1:] if path.startswith("/") else path for path in paths),
+        )
 
-    def repo(self, path):
-        return os.path.join(self.repo_dir, path)
+    def repo(self, *paths):
+        return os.path.join(
+            self.repo_dir,
+            *(path[1:] if path.startswith("/") else path for path in paths),
+        )
 
     def run_default_crepo(self, cmd):
         return run_crepo(self.default_args + cmd.split())
 
     def assertLn(self, link, conf):
-        self.assertTrue(os.path.islink(link))
+        link = self.root(link)
+        conf = self.repo(conf)
+        self.assertTrue(os.path.islink(link), f"Link not found: {link}")
         self.assertEqual(os.readlink(link), conf)
 
     def assert_labels(self, crepo, labels):
@@ -60,5 +73,4 @@ class TestCRepo(unittest.TestCase):
             )
 
     def tearDown(self):
-        for data_dir in self.PREPARED_DATA_DIR_NAMES:
-            shutil.rmtree(os.path.join(self.test_data_tmp_dir, data_dir))
+        self.test_data_tmp_dir_obj.cleanup()

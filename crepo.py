@@ -18,7 +18,8 @@ class CRepo:
         self.runner = Runner(args.dry_run, args.silent)
         self.run = self.runner.run
         self.etc_dir = os.path.join(self.args.root_dir, "etc")
-        self.env = {"ETC": self.etc_dir}
+        self.home_dir = os.path.join(self.args.root_dir, "home")
+        self.env = {"ETC": self.etc_dir, "USER_HOME": self.args.user_home}
 
     def info(self, msg):
         if not self.args.silent:
@@ -34,10 +35,22 @@ class CRepo:
     def get_target_name_from_path(self, conf_path):
         target_name = None
         if conf_path.startswith(self.etc_dir):
-            pathnames = conf_path[len(self.etc_dir) :].split("/")
+            pathnames = conf_path[len(self.etc_dir) :].split(os.path.sep)
             if len(pathnames) > 1:
                 target_name = pathnames[1]
-            target_name = Path(target_name).stem
+        elif conf_path.startswith(self.home_dir):
+            pathnames = conf_path[len(self.home_dir) :].split(os.path.sep)
+            if len(pathnames) > 2:
+                target_name = pathnames[2]
+                if target_name == ".config":
+                    target_name = pathnames[3]
+                if target_name.startswith("."):
+                    target_name = target_name[1:]
+        if not target_name:
+            return None
+        target_name = Path(target_name).stem
+        if target_name.endswith("rc"):
+            target_name = target_name[:-2]
         return target_name
 
     def chown(self, file, owner):
@@ -66,10 +79,10 @@ class CRepo:
         return os.path.join(
             self.args.repo_dir,
             target_name,
-            self.get_conf_name_with_variant(conf_name, variant),
+            CRepo.get_conf_name_with_variant(conf_name, variant),
         )
 
-    def get_conf_name_with_variant(self, conf_name, variant):
+    def get_conf_name_with_variant(conf_name, variant):
         return (conf_name + "." + variant) if variant else conf_name
 
     def error_exit(self, msg, exit_code=1):
@@ -88,8 +101,12 @@ class CRepo:
         return str.format(**{**self.env, **tmp_env})
 
     def replace_with_env(self, str):
-        if str.startswith(self.env["ETC"]):
-            str = str.replace(self.env["ETC"], "{ETC}")
+        if str.startswith(self.etc_dir):
+            str = str.replace(self.etc_dir, "{ETC}")
+        elif str.startswith(self.home_dir):
+            str = os.path.join(
+                "{USER_HOME}", *str[len(self.home_dir) :].split(os.path.sep)[2:]
+            )
         return str
 
     def link_conf(self, target_name, conf_name, variant, required=True):
@@ -98,7 +115,6 @@ class CRepo:
             if variant and not required:
                 # 在install模式下，如果未查找到对应variant，则使用默认conf
                 self.link_conf(target_name, conf_name, None, required)
-
             elif required:
                 self.error_exit(
                     f"Conf file not exists: {conf_path}",
@@ -109,10 +125,11 @@ class CRepo:
         target_config = self.get_target_config(target_name)
         if conf_name not in target_config:
             self.error_exit(
-                f"Conf definition not found: Target {target_name}, Conf {conf_name}", 2
+                f"Conf definition not found: Target {target_name}, Conf {conf_name}", 3
             )
         conf_config = target_config[conf_name]
         origin_path = self.render_with_env(conf_config["origin"])
+
         if not os.path.isdir(os.path.dirname(origin_path)):
             os.makedirs(os.path.dirname(origin_path))
 
@@ -164,11 +181,12 @@ class CRepo:
                 origin_path
             )
             if not target_name:
-                self.error_exit("Target is not provided!", 1)
+                self.error_exit("Target is not provided!", 4)
 
             target_dir = self.get_target_dir(target_name)
 
-            conf_name = self.args.name or os.path.basename(origin_path)
+            # if not set name, use origin name, and strip leading dot
+            conf_name = self.args.name or os.path.basename(origin_path).lstrip(".")
             conf_path = self.get_conf_path(target_name, conf_name, self.args.variant)
 
             self.info(
@@ -202,7 +220,7 @@ class CRepo:
                 conf_name in target_config
                 and target_config[conf_name]["origin"] != replaced_origin_path
             ):
-                self.error_exit("Origin conflicts", 1)
+                self.error_exit("Origin conflicts", 5)
 
             target_config[conf_name] = {"origin": replaced_origin_path}
             self.run(
@@ -247,8 +265,11 @@ def run_crepo(argv):
     parser.add_argument(
         "--repo-dir", default=(os.getenv("CREPO_ROOT") or "/.config-repo")
     )
-    parser.add_argument("--owner")
     parser.add_argument("--root-dir", default="/")
+    parser.add_argument("--user", default=os.getlogin())
+    parser.add_argument("--user-home", default=os.path.join(os.path.expanduser("~")))
+
+    parser.add_argument("--owner")
 
     parser.add_argument("-t", "--target")
     parser.add_argument("-v", "--variant")
