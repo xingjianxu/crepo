@@ -1,8 +1,8 @@
 import os
-from test_crepo import TestCRepo
+from test.base import BaseTestCase
 
 
-class TestLn(TestCRepo):
+class TestLn(BaseTestCase):
     def test_ln_1(self):
         self.run_default_crepo("-t ipset ln ipset.conf")
         self.assertLn(
@@ -61,7 +61,19 @@ class TestLn(TestCRepo):
         )
 
     def test_ln_10(self):
-        self.run_default_crepo(f"ln @ssh/pkey")
+        with self.assertRaises(SystemExit) as cm:
+            self.run_default_crepo("-t confilic_ipset ln @ipset/ipset.conf")
+        self.assertEqual(cm.exception.code, 7)
+
+    def test_ln_11(self):
+        self.run_default_crepo(f"ln @ipset")
+        self.assertLn(
+            "etc/ipset.conf",
+            "ipset/ipset.conf",
+        )
+
+    def test_ln_12(self):
+        self.run_default_crepo(f"ln @ssh")
         self.assertLn(
             f"/home/{self.user}/.ssh/id_rsa.pub",
             "ssh/pkey",

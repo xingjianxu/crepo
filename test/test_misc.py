@@ -1,8 +1,8 @@
-from test_crepo import TestCRepo
+from test.base import BaseTestCase
 from crepo import run_crepo
 
 
-class TestMisc(TestCRepo):
+class TestMisc(BaseTestCase):
     def test_get_target_name_from_path_1(self):
         crepo = run_crepo(["ls"])
         self.assertEqual(

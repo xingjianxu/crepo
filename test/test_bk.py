@@ -2,10 +2,10 @@ import os
 import pwd
 import json
 import filecmp
-from test_crepo import TestCRepo
+from test.base import BaseTestCase
 
 
-class TestBk(TestCRepo):
+class TestBk(BaseTestCase):
 
     def assertBk(self, crepo, **params):
         target_name = params["target_name"]

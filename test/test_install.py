@@ -1,8 +1,8 @@
 import os
-from test_crepo import TestCRepo
+from test.base import BaseTestCase
 
 
-class TestInstall(TestCRepo):
+class TestInstall(BaseTestCase):
     def test_install_1(self):
         self.run_default_crepo(f"install ipset")
         self.assertLn(

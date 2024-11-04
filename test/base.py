@@ -11,7 +11,7 @@ sys.path.append(parent_dir)
 from crepo import run_crepo
 
 
-class TestCRepo(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
 
     PREPARED_DATA_DIR_NAMES = ["root", "repo"]
 

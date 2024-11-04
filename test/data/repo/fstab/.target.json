@@ -1,0 +1,8 @@
+{
+  "fstab.sh": {
+    "type": "exec"
+  },
+  "printenv.sh": {
+    "type": "exec"
+  }
+}

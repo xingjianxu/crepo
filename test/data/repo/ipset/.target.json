@@ -1,6 +1,7 @@
 {
 	"ipset.conf": {
-    "origin": "{ETC}/ipset.conf"
+    "origin": "{ETC}/ipset.conf",
+    "default": true
   },
   "a.conf": {
     "origin": "{ETC}/a.conf"
