@@ -1,5 +1,5 @@
-from test.base import BaseTestCase
-from crepo import run_crepo
+from base import BaseTestCase
+from crepo.crepo import run_crepo
 
 
 class TestMisc(BaseTestCase):

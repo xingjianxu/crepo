@@ -6,9 +6,10 @@ import platform
 import shutil
 import json
 import pwd
+import stat
 import subprocess
 from pathlib import Path
-from runner import Runner
+from .runner import Runner
 
 
 class CRepo:
@@ -129,6 +130,14 @@ class CRepo:
             )
         return str
 
+    def mk_target_dir(self, target_dir):
+        if not (os.path.exists(target_dir) and os.path.isdir(target_dir)):
+            self.run(f"mkdir {target_dir}", lambda: os.mkdir(target_dir))
+            self.run(
+                f"chown {self.args.owner} {target_dir}",
+                lambda: self.chown(target_dir, self.args.owner),
+            )
+
     def link_conf(
         self, target_name, conf_name, variant, permit_exec=False, required=True
     ):
@@ -198,113 +207,6 @@ class CRepo:
             post_cmd = self.render_with_env(conf_config["post"])
             self.run(f"run post action: {post_cmd}", lambda: os.system(post_cmd))
 
-    def ln(self, permit_exec=False):
-        """
-        crepo ln ipset.conf
-        crepo -t ipset ln ipset.conf
-        crepo ln @ipset/ipset.conf
-        crepo -t ipset -v raw ln ipset.conf
-        """
-        for conf_name in self.args.confs:
-            target_name_from_path, conf_name = self.get_target_and_conf_name(conf_name)
-
-            target_name = (
-                self.args.target
-                or target_name_from_path
-                or ".".join(conf_name.split(".")[0:-1])
-            )
-
-            self.link_conf(target_name, conf_name, self.args.variant, permit_exec)
-
-    def bk(self):
-        """
-        crepo bk iptables.rules
-        crepo -t iptables -v ros -n my-iptables.rules bk iptables.rules
-        crepo bk ~/.ssh/authorized_keys
-        """
-        for origin in self.args.origins:
-            origin_path = os.path.abspath(origin)
-            target_name = self.args.target or self.get_target_name_from_path(
-                origin_path
-            )
-            if not target_name:
-                self.error_exit("Target is not provided!", 4)
-
-            target_dir = self.get_target_dir(target_name)
-
-            # if not set name, use origin name, and strip leading dot
-            conf_name = self.args.name or os.path.basename(origin_path).lstrip(".")
-            conf_path = self.get_conf_path(target_name, conf_name, self.args.variant)
-
-            self.info(
-                f"Backup: Target {target_name}, Origin {origin_path}, Conf {conf_path}, Var {self.args.variant}"
-            )
-
-            if not (os.path.exists(target_dir) and os.path.isdir(target_dir)):
-                self.run(f"mkdir {target_dir}", lambda: os.mkdir(target_dir))
-                self.run(
-                    f"chown {self.args.owner} {target_dir}",
-                    lambda: self.chown(target_dir, self.args.owner),
-                )
-
-            self.run(
-                f"cp {origin_path} {conf_path}",
-                lambda: shutil.copyfile(origin_path, conf_path),
-            )
-            self.run(
-                f"chown {self.args.owner} {conf_path}",
-                lambda: self.chown(conf_path, self.args.owner),
-            )
-            self.run(f"rm {origin_path}", lambda: os.remove(origin_path))
-            self.run(
-                f"ln {conf_path} {origin_path}",
-                lambda: os.symlink(conf_path, origin_path),
-            )
-
-            target_config = self.get_target_config(target_name)
-            replaced_origin_path = self.replace_with_env(origin_path)
-            if (
-                conf_name in target_config
-                and target_config[conf_name]["origin"] != replaced_origin_path
-            ):
-                self.error_exit("Origin conflicts", 5)
-
-            target_config[conf_name] = {"origin": replaced_origin_path}
-            self.run(
-                f"save target config: {conf_name}=>{target_config[conf_name]}",
-                lambda: self.save_target_config(target_name, target_config),
-            )
-
-    def install(self):
-        """
-        crepo install ipset
-        crepo -v ros install ipset
-        crepo install ipset:ros
-        """
-        for target_name in self.args.target_names:
-            variant = self.args.variant
-            if ":" in target_name:
-                parts = target_name.split(":")
-                target_name = parts[0]
-                variant = ":".join(parts[1:])
-
-            target_config = self.get_target_config(target_name)
-            for conf_name in target_config:
-                self.link_conf(
-                    target_name, conf_name, variant, permit_exec=False, required=False
-                )
-
-    def unlink(self):
-        """
-        crepo restore ipset.conf
-        """
-        for origin in self.args.origins:
-            conf_path = os.readlink(origin)
-            self.run(f"rm {origin}", lambda: os.remove(origin))
-            self.run(
-                f"cp {conf_path} {origin}", lambda: shutil.copyfile(conf_path, origin)
-            )
-
     def ls(self):
         pass
 
@@ -319,9 +221,6 @@ class CRepo:
             env=self.env,
         )
         print(p.communicate()[0])
-
-    def exec(self):
-        self.ln(permit_exec=True)
 
 
 def run_crepo(argv):
@@ -360,11 +259,22 @@ def run_crepo(argv):
     parser_exec = subparsers.add_parser("exec")
     parser_exec.add_argument("confs", nargs="+")
 
+    parser_create = subparsers.add_parser("create")
+    parser_create.add_argument("--type", choices=["regular", "exec"], default="regular")
+    parser_create.add_argument("--default", action="store_true", default=False)
+    parser_create.add_argument("confs", nargs="+")
+
     args = parser.parse_args(argv)
 
     crepo = CRepo(args)
+
+    import importlib
+
     if args.subcommand_name:
-        getattr(crepo, args.subcommand_name)()
+        getattr(
+            importlib.import_module(f"crepo.cmd.{args.subcommand_name}"),
+            f"{args.subcommand_name.capitalize()}Cmd",
+        )(crepo, crepo.args).run()
     else:
         parser.print_help()
 
@@ -373,7 +283,3 @@ def run_crepo(argv):
 
 def main():
     run_crepo(sys.argv[1:])
-
-
-if __name__ == "__main__":
-    main()

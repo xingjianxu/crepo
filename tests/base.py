@@ -5,10 +5,10 @@ import shutil
 import tempfile
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.join(current_dir, os.pardir)
-sys.path.append(parent_dir)
+src_dir = os.path.join(current_dir, os.pardir, "src")
+sys.path.append(src_dir)
 
-from crepo import run_crepo
+from crepo.crepo import run_crepo
 
 
 class BaseTestCase(unittest.TestCase):

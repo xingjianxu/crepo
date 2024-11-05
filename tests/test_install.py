@@ -1,5 +1,5 @@
 import os
-from test.base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestInstall(BaseTestCase):

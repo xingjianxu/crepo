@@ -1,7 +1,7 @@
 import os
 from io import StringIO
 from unittest.mock import patch
-from test.base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestExec(BaseTestCase):

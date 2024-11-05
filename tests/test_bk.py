@@ -2,7 +2,7 @@ import os
 import pwd
 import json
 import filecmp
-from test.base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestBk(BaseTestCase):
