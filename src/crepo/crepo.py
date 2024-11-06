@@ -88,7 +88,7 @@ class CRepo:
         )
 
     def get_conf_name_with_variant(conf_name, variant):
-        return (conf_name + "." + variant) if variant else conf_name
+        return (f"{variant}:{conf_name}") if variant else conf_name
 
     def error_exit(self, msg, exit_code=1):
         self.error(msg)

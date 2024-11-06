@@ -30,7 +30,7 @@ class TestInstall(BaseTestCase):
         self.run_default_crepo(f"-v raw install ipset")
         self.assertLn(
             "etc/ipset.conf",
-            "ipset/ipset.conf.raw",
+            "ipset/raw:ipset.conf",
         )
         self.assertLn(
             "etc/a.conf",
@@ -38,7 +38,7 @@ class TestInstall(BaseTestCase):
         )
         self.assertLn(
             "etc/b.conf",
-            "ipset/b.conf.raw",
+            "ipset/raw:b.conf",
         )
 
     def test_install_4(self):
@@ -60,7 +60,7 @@ class TestInstall(BaseTestCase):
         self.run_default_crepo(f"install ipset:raw sysctl")
         self.assertLn(
             "etc/ipset.conf",
-            "ipset/ipset.conf.raw",
+            "ipset/raw:ipset.conf",
         )
         self.assertLn(
             "etc/a.conf",
@@ -68,7 +68,7 @@ class TestInstall(BaseTestCase):
         )
         self.assertLn(
             "etc/b.conf",
-            "ipset/b.conf.raw",
+            "ipset/raw:b.conf",
         )
         self.assertLn(
             "etc/sysctl.d/30-net.conf",

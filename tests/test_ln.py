@@ -28,7 +28,7 @@ class TestLn(BaseTestCase):
         self.run_default_crepo("-v raw ln @ipset/ipset.conf")
         self.assertLn(
             "etc/ipset.conf",
-            "ipset/ipset.conf.raw",
+            "ipset/raw:ipset.conf",
         )
 
     def test_ln_5(self):
