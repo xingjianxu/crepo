@@ -80,7 +80,7 @@ class CRepo:
         with open(self.get_target_config_path(target_name), "w") as tcf:
             json.dump(target_config, tcf, sort_keys=True, indent=2)
 
-    def get_conf_path(self, target_name, conf_name, variant):
+    def get_conf_path(self, target_name, conf_name, variant=None):
         return os.path.join(
             self.args.repo_dir,
             target_name,

@@ -12,7 +12,7 @@ class UnlinkCmd(BaseCmd):
         """
         for origin in self.args.origins:
             conf_path = os.readlink(origin)
-            self.run(f"rm {origin}", lambda: os.remove(origin))
-            self.run(
+            self.crepo.run(f"rm {origin}", lambda: os.remove(origin))
+            self.crepo.run(
                 f"cp {conf_path} {origin}", lambda: shutil.copyfile(conf_path, origin)
             )
