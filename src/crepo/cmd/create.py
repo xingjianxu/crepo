@@ -7,12 +7,10 @@ from .base import BaseCmd
 class CreateCmd(BaseCmd):
     def run(self, permit_exec=False):
         for conf_name in self.args.confs:
-            target_name, conf_name = self.crepo.get_target_and_conf_name(conf_name)
+            target_name, conf_name, variant = self.crepo.parse_path(conf_name)
             self.crepo.info(f"Create: Target {target_name}, Conf {conf_name}")
             self.crepo.mk_target_dir(self.crepo.get_target_dir(target_name))
-            conf_path = self.crepo.get_conf_path(
-                target_name, conf_name, self.args.variant
-            )
+            conf_path = self.crepo.get_conf_path(target_name, conf_name, variant)
             with open(conf_path, "w") as file:
                 file.write("")
             st = os.stat(conf_path)

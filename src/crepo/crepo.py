@@ -94,8 +94,13 @@ class CRepo:
         self.error(msg)
         sys.exit(exit_code)
 
-    def get_target_and_conf_name(self, path):
-        target_name, target_name_in_path, conf_name = None, None, None
+    def parse_path(self, path):
+        target_name, target_name_in_path, conf_name, varaint = (
+            None,
+            None,
+            None,
+            self.args.variant,
+        )
         if path.startswith("@"):
             parts = path.split("/")
             target_name_in_path = parts[0][1:]
@@ -111,12 +116,18 @@ class CRepo:
             self.error_exit(
                 f"Target name conflict: {target_name_in_path} and {self.args.target}", 7
             )
+
         target_name = (
             self.args.target
             or target_name_in_path
             or ".".join(conf_name.split(".")[0:-1])
         )
-        return target_name, conf_name
+        if ":" in conf_name:
+            parts = conf_name.split(":")
+            varaint = parts[0]
+            conf_name = ":".join(parts[1:])
+
+        return target_name, conf_name, varaint
 
     def render_with_env(self, str, tmp_env={}):
         return str.format(**{**self.env, **tmp_env})

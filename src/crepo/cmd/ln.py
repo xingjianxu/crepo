@@ -12,5 +12,5 @@ class LnCmd(BaseCmd):
         crepo -t ipset -v raw ln ipset.conf
         """
         for conf_name in self.args.confs:
-            target_name, conf_name = self.crepo.get_target_and_conf_name(conf_name)
-            self.crepo.link_conf(target_name, conf_name, self.args.variant, permit_exec)
+            target_name, conf_name, variant = self.crepo.parse_path(conf_name)
+            self.crepo.link_conf(target_name, conf_name, variant, permit_exec)

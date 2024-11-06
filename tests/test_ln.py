@@ -78,3 +78,17 @@ class TestLn(BaseTestCase):
             f"/home/{self.user}/.ssh/id_rsa.pub",
             "ssh/pkey",
         )
+
+    def test_ln_13(self):
+        self.run_default_crepo("ln @ipset/raw:ipset.conf")
+        self.assertLn(
+            "etc/ipset.conf",
+            "ipset/raw:ipset.conf",
+        )
+
+    def test_ln_14(self):
+        self.run_default_crepo("-v raw ln @ipset/ipset.conf")
+        self.assertLn(
+            "etc/ipset.conf",
+            "ipset/raw:ipset.conf",
+        )
