@@ -1,2 +1,2 @@
 # Installation
-bash < (curl -s https://raw.githubusercontent.com/xingjianxu/crepo/refs/heads/master/install.sh)
+CREPO_REPO_URL_GITHUB=xingjianxu/config-repo /bin/bash -c "$(curl -fsSL https://gitee.com/xingjianxu/crepo/raw/master/install.sh)"
