@@ -1,3 +1,4 @@
+import os
 from base import BaseTestCase
 from crepo.crepo import run_crepo
 
@@ -51,3 +52,17 @@ class TestMisc(BaseTestCase):
             crepo.get_conf_variant_paths("ipset", "i"),
             [],
         )
+
+    def test_default_args_1(self):
+        import socket
+
+        crepo = run_crepo(["ls"])
+        self.assertEqual(crepo.args.variant, socket.gethostname())
+
+        VARIANT = "SPECIAL_VARIANT"
+        os.environ["CREPO_VARIANT"] = VARIANT
+        crepo = run_crepo(["ls"])
+        self.assertEqual(crepo.args.variant, VARIANT)
+
+        crepo = run_crepo(["-D", "ls"])
+        self.assertIsNone(crepo.args.variant)
