@@ -35,6 +35,7 @@ class BaseTestCase(unittest.TestCase):
             f"--user={self.user}",
             f"--user-home={self.user_home}",
             "--silent",
+            "-D",
         ]
 
     def root(self, *paths):

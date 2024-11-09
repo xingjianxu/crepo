@@ -10,12 +10,18 @@ class CreateCmd(BaseCmd):
             target_name, conf_name, variant = self.crepo.parse_path(conf_name)
             self.crepo.info(f"Create: Target {target_name}, Conf {conf_name}")
             self.crepo.mk_target_dir(self.crepo.get_target_path(target_name))
+
             conf_path = self.crepo.get_conf_path(target_name, conf_name, variant)
+
             with open(conf_path, "w") as file:
                 file.write("")
-            st = os.stat(conf_path)
-            os.chmod(conf_path, st.st_mode | stat.S_IEXEC)
-            print(f"Created: {self.args.default}")
+
+            if self.args.type == "exec":
+                st = os.stat(conf_path)
+                self.crepo.run(
+                    f"chmod +x {conf_path}",
+                    lambda: os.chmod(conf_path, st.st_mode | stat.S_IEXEC),
+                )
             self.crepo.save_target_config(
                 target_name,
                 {conf_name: {"type": self.args.type, "default": self.args.default}},

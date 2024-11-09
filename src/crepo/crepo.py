@@ -7,6 +7,7 @@ import shutil
 import json
 import pwd
 import subprocess
+import socket
 from pathlib import Path
 from .runner import Runner
 
@@ -16,6 +17,8 @@ class CRepo:
         self.args = args
         if not args.owner:
             args.owner = pwd.getpwuid(os.stat(self.args.repo_dir).st_uid).pw_name
+        if not args.no_default_variant and args.variant is None:
+            args.variant = os.getenv("CREPO_VARIANT") or socket.gethostname()
         self.runner = Runner(args.dry_run, args.silent)
         self.run = self.runner.run
         self.etc_dir = os.path.join(self.args.root_dir, "etc")
@@ -244,16 +247,20 @@ class CRepo:
 def run_crepo(argv):
     parser = argparse.ArgumentParser(prog="crepo")
     parser.add_argument(
-        "--repo-dir", default=(os.getenv("CREPO_ROOT") or "/.config-repo")
+        "--repo-dir", default=(os.getenv("CREPO_REPO") or "/.config-repo")
     )
     parser.add_argument("--root-dir", default="/")
-    parser.add_argument("--user", default=os.getlogin())
+    parser.add_argument("--user", default=(os.getenv("CREPO_USER") or os.getlogin()))
     parser.add_argument("--user-home", default=os.path.join(os.path.expanduser("~")))
 
-    parser.add_argument("--owner")
+    parser.add_argument("--owner", default=os.getenv("CREPO_OWNER"))
 
     parser.add_argument("-t", "--target")
     parser.add_argument("-v", "--variant")
+    parser.add_argument(
+        "-D", "--no-default-variant", default=False, action="store_true"
+    )
+
     parser.add_argument("-n", "--name")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--silent", action="store_true")
