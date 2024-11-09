@@ -14,7 +14,7 @@ sudo chown -R `whoami` $CREPO_REPO
 if [ -z "$CREPO_REPO_URL_GITHUB" ]; then
   git clone https://github.com/$CREPO_REPO_URL_GITHUB $CREPO_REPO
 elif [ -z "$CREPO_REPO_URL_GITEE" ]; then
-  git clone https://gitee.com/$CREPO_REPO_URL_GITHUB $CREPO_REPO
+  git clone https://gitee.com/$CREPO_REPO_URL_GITEE $CREPO_REPO
 elif [ -z "$CREPO_REPO_URL" ]; then
   git clone $CREPO_REPO_URL $CREPO_REPO
 fi
