@@ -6,7 +6,6 @@ import platform
 import shutil
 import json
 import pwd
-import stat
 import subprocess
 from pathlib import Path
 from .runner import Runner
@@ -62,11 +61,11 @@ class CRepo:
         if sys.platform != "win32":
             shutil.chown(file, owner, -1)
 
-    def get_target_dir(self, target_name):
+    def get_target_path(self, target_name):
         return os.path.join(self.args.repo_dir, target_name)
 
     def get_target_config_path(self, target_name):
-        return os.path.join(self.get_target_dir(target_name), ".target.json")
+        return os.path.join(self.get_target_path(target_name), ".target.json")
 
     def get_target_config(self, target_name):
         target_config_path = self.get_target_config_path(target_name)
@@ -233,6 +232,14 @@ class CRepo:
         )
         print(p.communicate()[0])
 
+    def get_conf_variant_paths(self, target_name, conf_name):
+        target_path = self.get_target_path(target_name)
+        return [
+            f
+            for f in os.listdir(target_path)
+            if f == conf_name or f.endswith(f":{conf_name}")
+        ]
+
 
 def run_crepo(argv):
     parser = argparse.ArgumentParser(prog="crepo")
@@ -274,6 +281,9 @@ def run_crepo(argv):
     parser_create.add_argument("--type", choices=["regular", "exec"], default="regular")
     parser_create.add_argument("--default", action="store_true", default=False)
     parser_create.add_argument("confs", nargs="+")
+
+    parser_unlink = subparsers.add_parser("rm")
+    parser_unlink.add_argument("confs", nargs="*")
 
     args = parser.parse_args(argv)
 

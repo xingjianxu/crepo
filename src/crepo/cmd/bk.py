@@ -19,7 +19,7 @@ class BkCmd(BaseCmd):
             if not target_name:
                 self.crepo.error_exit("Target is not provided!", 4)
 
-            target_dir = self.crepo.get_target_dir(target_name)
+            target_dir = self.crepo.get_target_path(target_name)
 
             # if not set name, use origin name, and strip leading dot
             conf_name = self.args.name or os.path.basename(origin_path).lstrip(".")

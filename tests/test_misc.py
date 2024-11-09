@@ -37,3 +37,17 @@ class TestMisc(BaseTestCase):
     def test_get_target_name_from_path_6(self):
         crepo = run_crepo(["ls"])
         self.assertEqual(crepo.get_target_name_from_path("/home/tu/.zshrc"), "zsh")
+
+    def test_get_conf_variants_1(self):
+        crepo = self.run_default_crepo("ls")
+        self.assertListEqual(
+            crepo.get_conf_variant_paths("ipset", "ipset.conf"),
+            ["ipset.conf", "raw:ipset.conf"],
+        )
+
+    def test_get_conf_variants_2(self):
+        crepo = self.run_default_crepo("ls")
+        self.assertListEqual(
+            crepo.get_conf_variant_paths("ipset", "i"),
+            [],
+        )

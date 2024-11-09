@@ -74,3 +74,14 @@ class TestInstall(BaseTestCase):
             "etc/sysctl.d/30-net.conf",
             "sysctl/net.conf",
         )
+
+    def test_install_6(self):
+        self.run_default_crepo(f"install @ipset")
+        self.assertLn(
+            "etc/ipset.conf",
+            "ipset/ipset.conf",
+        )
+        self.assertLn(
+            "etc/a.conf",
+            "ipset/a.conf",
+        )

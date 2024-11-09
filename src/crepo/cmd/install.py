@@ -16,6 +16,10 @@ class InstallCmd(BaseCmd):
                 target_name = parts[0]
                 variant = ":".join(parts[1:])
 
+            target_name = (
+                target_name[1:] if target_name.startswith("@") else target_name
+            )
+
             target_config = self.crepo.get_target_config(target_name)
             for conf_name in target_config:
                 self.crepo.link_conf(
