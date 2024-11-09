@@ -11,8 +11,10 @@ echo "Installing config-repo..."
 CREPO_REPO=/.config-repo
 sudo mkdir -p $CREPO_REPO
 sudo chown -R `whoami` $CREPO_REPO
-if [ -z "$1" ]; then
-  git clone https://github.com/$1 $CREPO_REPO
+if [ -z "$CREPO_REPO_URL_GITHUB" ]; then
+  git clone https://github.com/$CREPO_REPO_URL_GITHUB $CREPO_REPO
+elif [ -z "$CREPO_REPO_URL" ]; then
+  git clone $CREPO_REPO_URL $CREPO_REPO
 fi
 
 echo "Successfully installed crepo!"
