@@ -7,6 +7,14 @@ current_dir = os.path.dirname(os.path.abspath(realpath))
 src_dir = os.path.join(current_dir, os.pardir, "src")
 sys.path.append(src_dir)
 
+CONF_FILE = "/etc/conf.d/crepo"
+if os.path.exists(CONF_FILE):
+    with open(CONF_FILE, "r") as f:
+        for line in f:
+            if line.strip() == "" or line.startswith("#"):
+                continue
+            parts = line.split("=")
+            os.environ[parts[0].strip()] = parts[1].strip()
 import crepo.crepo as crepo
 
 if __name__ == "__main__":
