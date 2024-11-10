@@ -1,5 +1,6 @@
 {
   "pkey": {
-    "origin": "{USER_HOME}/.ssh/id_rsa.pub"
+    "origin": "{USER_HOME}/.ssh/id_rsa.pub",
+    "perm": "600"
   }
 }

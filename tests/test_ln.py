@@ -1,3 +1,6 @@
+import os
+import stat
+import pwd
 from base import BaseTestCase
 
 
@@ -84,12 +87,21 @@ class TestLn(BaseTestCase):
             "ipset/ipset.conf",
         )
 
-    def test_ln_9(self):
+    def test_ln_90(self):
         self.run_default_crepo(f"ln @ssh/pkey")
         self.assertLn(
             f"/home/{self.user}/.ssh/id_rsa.pub",
             "ssh/pkey",
         )
+
+    def test_ln_91(self):
+        self.run_default_crepo(f"ln @ssh/pkey")
+        self.assertLn(
+            f"/home/{self.user}/.ssh/id_rsa.pub",
+            "ssh/pkey",
+        )
+        perm = os.stat(self.repo("ssh/pkey")).st_mode
+        self.assertEqual(stat.filemode(perm), "-rw-------")
 
     def test_ln_10(self):
         with self.assertRaises(SystemExit) as cm:

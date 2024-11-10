@@ -232,6 +232,11 @@ class CRepo:
                 lambda: os.symlink(conf_path, origin_path),
             )
 
+        if "perm" in conf_config:
+            os.chmod(origin_path, int(conf_config["perm"], 8))
+        if "owner" in conf_config:
+            [owner, group] = conf_config["owner"].split(":")
+            shutil.chown(origin_path, owner, group)
         if "post" in conf_config:
             post_cmd = self.render_with_env(conf_config["post"])
             self.run(f"run post action: {post_cmd}", lambda: os.system(post_cmd))
