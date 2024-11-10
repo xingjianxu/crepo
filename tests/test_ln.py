@@ -25,11 +25,20 @@ class TestLn(BaseTestCase):
 
     def test_ln_02(self):
         self.run_default_crepo("-t ipset ln ipset.conf")
-        # ln again in non strict mode should not raise error
-        self.run_default_crepo("-t ipset ln ipset.conf")
+        # In non strict mode should not raise error, but also not create a new link
+        self.run_default_crepo("ln @ipset/raw:ipset.conf")
         self.assertLn(
             "etc/ipset.conf",
             "ipset/ipset.conf",
+        )
+
+    def test_ln_03(self):
+        self.run_default_crepo("-t ipset ln ipset.conf")
+        # In non strict mode, withc `-F` option, should not raise error, and also not create a new link
+        self.run_default_crepo("-F ln @ipset/raw:ipset.conf")
+        self.assertLn(
+            "etc/ipset.conf",
+            "ipset/raw:ipset.conf",
         )
 
     def test_ln_2(self):

@@ -221,9 +221,17 @@ class CRepo:
                         f"Origin file already exists: {origin_path}",
                         ERROR_ORIGIN_EXISTS,
                     )
+                self.info(f"Origin file already exists: {origin_path}")
+                if self.args.force:
+                    self.info(
+                        f"In force mode, origin file {origin_path} will be removed"
+                    )
+                    self.run(
+                        f"rm {origin_path}",
+                        lambda: os.remove(origin_path),
+                    )
                 else:
-                    self.info(f"Origin file already exists: {origin_path}")
-                return
+                    return
             self.info(
                 f"Ln: Target {target_name}, Origin {origin_path}, Conf {conf_path}, Var {variant}"
             )
@@ -285,8 +293,9 @@ def run_crepo(argv):
     parser.add_argument("-S", "--strict-mode", default=False, action="store_true")
 
     parser.add_argument("-n", "--name")
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--silent", action="store_true")
+    parser.add_argument("--dry-run", action="store_true", default=False)
+    parser.add_argument("--silent", action="store_true", default=False)
+    parser.add_argument("-F", "--force", action="store_true", default=False)
 
     subparsers = parser.add_subparsers(dest="subcommand_name")
 
