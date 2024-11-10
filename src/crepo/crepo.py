@@ -11,6 +11,9 @@ import socket
 from pathlib import Path
 from .runner import Runner
 
+ERROR_FILENOTFOUND = 10
+ERROR_ORIGIN_EXISTS = 20
+
 
 class CRepo:
     def __init__(self, args):
@@ -210,6 +213,17 @@ class CRepo:
 
             if not os.path.isdir(os.path.dirname(origin_path)):
                 os.makedirs(os.path.dirname(origin_path))
+
+            # 如果origin文件已存在
+            if os.path.exists(origin_path):
+                if self.args.strict_mode:
+                    self.error_exit(
+                        f"Origin file already exists: {origin_path}",
+                        ERROR_ORIGIN_EXISTS,
+                    )
+                else:
+                    self.info(f"Origin file already exists: {origin_path}")
+                return
             self.info(
                 f"Ln: Target {target_name}, Origin {origin_path}, Conf {conf_path}, Var {variant}"
             )
