@@ -343,6 +343,12 @@ def run_crepo(argv):
     )
     parser_edit.add_argument("conf")
 
+    parser_path = subparsers.add_parser("path")
+    parser_path.add_argument(
+        "-T", "--target-config", action="store_true", default=False
+    )
+    parser_path.add_argument("conf")
+
     args = parser.parse_args(argv)
 
     crepo = CRepo(args)
