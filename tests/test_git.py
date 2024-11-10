@@ -22,14 +22,14 @@ class TestGit(BaseTestCase):
         )
 
     def test_git_30(self):
-        crepo = self.run_default_crepo("--dry-run git -s pull")
+        crepo = self.run_default_crepo("--dry-run git -S pull")
         self.assertLabels(
             crepo,
             [f"cd {os.getenv("CREPO_HOME")}", "git pull"],
         )
 
     def test_git_40(self):
-        crepo = self.run_default_crepo("--dry-run git -s push")
+        crepo = self.run_default_crepo("--dry-run git -S push")
         self.assertLabels(
             crepo,
             [

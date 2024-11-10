@@ -335,9 +335,12 @@ def run_crepo(argv):
 
     parser_git = subparsers.add_parser("git")
     parser_git.add_argument("action", choices=["pull", "push"])
-    parser_git.add_argument("-s", "--self", action="store_true", default=False)
+    parser_git.add_argument("-S", "--self", action="store_true", default=False)
 
     parser_edit = subparsers.add_parser("edit")
+    parser_edit.add_argument(
+        "-T", "--target-config", action="store_true", default=False
+    )
     parser_edit.add_argument("conf")
 
     args = parser.parse_args(argv)
