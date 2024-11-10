@@ -134,10 +134,8 @@ class CRepo:
             or target_name_in_path
             or ".".join(conf_name.split(".")[0:-1])
         )
-        if ":" in conf_name:
-            parts = conf_name.split(":")
-            varaint = parts[0]
-            conf_name = ":".join(parts[1:])
+        if ":" in path:
+            conf_name, varaint = self.get_conf_name_and_variant_from_path(conf_name)
 
         return target_name, conf_name, varaint
 
@@ -279,6 +277,13 @@ class CRepo:
             if f == conf_name or f.endswith(f":{conf_name}")
         ]
 
+    def remove_atsign_from_target_name(self, path):
+        return path[1:] if path.startswith("@") else path
+
+    def get_conf_name_and_variant_from_path(self, path):
+        parts = path.split(":")
+        return parts[1], parts[0]
+
 
 def run_crepo(argv):
     parser = argparse.ArgumentParser(prog="crepo")
@@ -318,8 +323,6 @@ def run_crepo(argv):
     parser_unlink = subparsers.add_parser("unlink")
     parser_unlink.add_argument("origins", nargs="+")
 
-    parser_unlink = subparsers.add_parser("ls")
-
     parser_exec = subparsers.add_parser("exec")
     parser_exec.add_argument("confs", nargs="+")
 
@@ -348,6 +351,9 @@ def run_crepo(argv):
         "-T", "--target-config", action="store_true", default=False
     )
     parser_path.add_argument("conf")
+
+    parser_ls = subparsers.add_parser("ls")
+    parser_ls.add_argument("path", nargs="?")
 
     args = parser.parse_args(argv)
 

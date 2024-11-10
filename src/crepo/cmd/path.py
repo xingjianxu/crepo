@@ -5,9 +5,7 @@ from .base import BaseCmd
 def get_file_path(crepo):
     path = None
     if crepo.args.target_config:
-        target_name = (
-            crepo.args.conf[1:] if crepo.args.conf.startswith("@") else crepo.args.conf
-        )
+        target_name = crepo.get_target_name_from_path(crepo.args.conf)
         path = crepo.get_target_config_path(target_name)
     else:
         target_name, conf_name, variant = crepo.parse_path(crepo.args.conf)
