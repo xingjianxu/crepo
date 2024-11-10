@@ -38,9 +38,14 @@ class TestLn(BaseTestCase):
             "ipset/ipset.conf",
         )
 
-    def test_ln_6(self):
+    def test_ln_60(self):
         with self.assertRaises(SystemExit) as cm:
             self.run_default_crepo("ln @ipset/x")
+        self.assertEqual(cm.exception.code, 3)
+
+    def test_ln_61(self):
+        with self.assertRaises(SystemExit) as cm:
+            self.run_default_crepo("-S ln @ipset/x")
         self.assertEqual(cm.exception.code, 2)
 
     def test_ln_7(self):
@@ -48,10 +53,17 @@ class TestLn(BaseTestCase):
             self.run_default_crepo("ln @ipset/not_in_config.conf")
         self.assertEqual(cm.exception.code, 3)
 
-    def test_ln_8(self):
+    def test_ln_80(self):
         with self.assertRaises(SystemExit) as cm:
-            self.run_default_crepo("-v x ln @ipset/ipset.conf")
+            self.run_default_crepo("-S -v x ln @ipset/ipset.conf")
         self.assertEqual(cm.exception.code, 2)
+
+    def test_ln_81(self):
+        self.run_default_crepo("-v x ln @ipset/ipset.conf")
+        self.assertLn(
+            "etc/ipset.conf",
+            "ipset/ipset.conf",
+        )
 
     def test_ln_9(self):
         self.run_default_crepo(f"ln @ssh/pkey")

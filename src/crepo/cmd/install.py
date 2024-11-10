@@ -22,6 +22,4 @@ class InstallCmd(BaseCmd):
 
             target_config = self.crepo.get_target_config(target_name)
             for conf_name in target_config:
-                self.crepo.link_conf(
-                    target_name, conf_name, variant, permit_exec=False, required=False
-                )
+                self.crepo.link_conf(target_name, conf_name, variant, permit_exec=False)

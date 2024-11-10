@@ -151,10 +151,9 @@ class CRepo:
                 lambda: self.chown(target_dir, self.args.owner),
             )
 
-    def link_conf(
-        self, target_name, conf_name, variant, permit_exec=False, required=True
-    ):
+    def link_conf(self, target_name, conf_name, variant, permit_exec=False):
         target_config = self.get_target_config(target_name)
+        # 未指定conf，则使用默认conf
         if not conf_name:
             target_config_keys = list(target_config.keys())
             if len(target_config_keys) == 1:
@@ -171,19 +170,22 @@ class CRepo:
                     )
 
         conf_path = self.get_conf_path(target_name, conf_name, variant)
+        # 指定的variant不存在，则使用默认variant
         if not os.path.exists(conf_path):
-            if variant and not required:
-                # 在install模式下，如果未查找到对应variant，则使用默认conf
-                self.link_conf(target_name, conf_name, None, permit_exec, required)
-            elif required:
+            if self.args.strict_mode:
                 self.error_exit(
                     f"Conf file not exists: {conf_path}",
                     2,
                 )
-            return
+            elif variant:
+                # 在install模式下，如果未查找到对应variant，则使用默认conf
+                self.info(f"Variant not found: {variant}, use default variant")
+                self.link_conf(target_name, conf_name, None, permit_exec)
+                return
+
         if conf_name not in target_config:
             self.error_exit(
-                f"Conf definition not found: Target {target_name}, Conf {conf_name}", 3
+                f"Conf not found: Target {target_name}, Conf {conf_name}", 3
             )
         conf_config = target_config[conf_name]
 
@@ -260,6 +262,8 @@ def run_crepo(argv):
     parser.add_argument(
         "-D", "--no-default-variant", default=False, action="store_true"
     )
+
+    parser.add_argument("-S", "--strict-mode", default=False, action="store_true")
 
     parser.add_argument("-n", "--name")
     parser.add_argument("--dry-run", action="store_true")

@@ -1,7 +1,8 @@
 #! /bin/sh
 
 echo "Installing crepo..."
-CREPO_HOME=/opt/crepo
+CREPO_HOME=${CREPO_HOME:="/opt/crepo"}
+
 sudo mkdir -p $CREPO_HOME
 sudo chown -R `whoami` $CREPO_HOME
 git clone https://gitee.com/xingjianxu/crepo $CREPO_HOME
