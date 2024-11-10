@@ -1,5 +1,4 @@
 import os
-import filecmp
 from base import BaseTestCase
 
 

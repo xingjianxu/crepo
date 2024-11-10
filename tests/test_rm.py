@@ -1,6 +1,4 @@
 import os
-import filecmp
-from unittest.mock import patch
 from base import BaseTestCase
 
 

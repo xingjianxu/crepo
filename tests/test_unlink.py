@@ -1,6 +1,4 @@
 import os
-import filecmp
-from unittest.mock import patch
 from base import BaseTestCase
 
 
@@ -14,6 +12,6 @@ class TestUnlink(BaseTestCase):
             "ipset",
             "ipset.conf",
         )
-        self.assertTrue(
-            filecmp.cmp(conf_path, os.path.join(self.test_data_root_dir, origin_path))
+        self.assertFileEqual(
+            conf_path, os.path.join(self.test_data_root_dir, origin_path)
         )

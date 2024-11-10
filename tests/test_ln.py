@@ -1,6 +1,5 @@
 import os
 import stat
-import pwd
 from base import BaseTestCase
 
 

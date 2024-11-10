@@ -62,10 +62,6 @@ class BaseTestCase(unittest.TestCase):
     def assertLabels(self, crepo, labels):
         self.assertListEqual(crepo.runner.runned_labels, labels)
 
-    def assertOutput(self, capfs, expected_output):
-        cap = capfs.readouterr()
-        self.assertEqual(cap.out, "\n".join(expected_output) + "\n")
-
     def assertFileEqual(self, path1, path2):
         self.assertEqual(
             open(path1, "r").read(),
