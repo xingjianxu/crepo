@@ -18,12 +18,12 @@ class GitCmd(BaseCmd):
             self.crepo.info(f"Committing and Pushing changes to remote: {pwd}")
 
             self.crepo.run(
-                f"git add --all",
+                "git add --all",
                 lambda: os.system("git add --all"),
             )
 
             self.crepo.run(
-                f"git commit",
+                "git commit",
                 lambda: os.system("git commit"),
             )
             self.crepo.run(f"git push", lambda: os.system("git push"))

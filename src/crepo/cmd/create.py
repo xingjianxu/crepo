@@ -1,5 +1,6 @@
 import os
 import stat
+import shutil
 from ..crepo import CRepo
 from .base import BaseCmd
 
@@ -13,8 +14,17 @@ class CreateCmd(BaseCmd):
 
             conf_path = self.crepo.get_conf_path(target_name, conf_name, variant)
 
-            with open(conf_path, "w") as file:
-                file.write("")
+            if self.args.from_template:
+                t_target_name, t_conf_name, t_variant = self.crepo.parse_path(
+                    self.args.from_template
+                )
+                t_conf_path = self.crepo.get_conf_path(
+                    t_target_name, t_conf_name, t_variant
+                )
+                shutil.copyfile(t_conf_path, conf_path)
+            else:
+                with open(conf_path, "w") as file:
+                    file.write("")
 
             if self.args.type == "exec":
                 st = os.stat(conf_path)
@@ -26,3 +36,6 @@ class CreateCmd(BaseCmd):
                 target_name,
                 {conf_name: {"type": self.args.type, "default": self.args.default}},
             )
+
+            if self.args.edit:
+                self.crepo.edit_file(conf_path)

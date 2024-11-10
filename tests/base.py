@@ -59,12 +59,19 @@ class BaseTestCase(unittest.TestCase):
         self.assertTrue(os.path.islink(link), f"Link not found: {link}")
         self.assertEqual(os.readlink(link), conf)
 
-    def assert_labels(self, crepo, labels):
-        self.assertEqual(crepo.runner.runned_labels, labels)
+    def assertLabels(self, crepo, labels):
+        self.assertListEqual(crepo.runner.runned_labels, labels)
 
-    def assert_output(self, capfs, expected_output):
+    def assertOutput(self, capfs, expected_output):
         cap = capfs.readouterr()
         self.assertEqual(cap.out, "\n".join(expected_output) + "\n")
+
+    def assertFileEqual(self, path1, path2):
+        self.assertEqual(
+            open(path1, "r").read(),
+            open(path2, "r").read(),
+            f"File content not equal: {path1} and {path2}",
+        )
 
     def setUp(self):
         for data_dir in self.PREPARED_DATA_DIR_NAMES:

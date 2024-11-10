@@ -92,6 +92,13 @@ class CRepo:
             CRepo.get_conf_name_with_variant(conf_name, variant),
         )
 
+    def edit_file(self, conf_path):
+        if not os.path.exists(conf_path) and not self.args.force:
+            self.error_exit(f"File not found: {conf_path}", ERROR_FILENOTFOUND)
+
+        editor = os.getenv("EDITOR", "vi")
+        self.run(f"{editor} {conf_path}", lambda: os.system(f"{editor} {conf_path}"))
+
     def get_conf_name_with_variant(conf_name, variant):
         return (f"{variant}:{conf_name}") if variant else conf_name
 
@@ -103,7 +110,7 @@ class CRepo:
         target_name, target_name_in_path, conf_name, varaint = (
             None,
             None,
-            None,
+            self.args.name,
             self.args.variant,
         )
         if path.startswith("@"):
@@ -319,6 +326,8 @@ def run_crepo(argv):
     parser_create = subparsers.add_parser("create")
     parser_create.add_argument("--type", choices=["regular", "exec"], default="regular")
     parser_create.add_argument("--default", action="store_true", default=False)
+    parser_create.add_argument("-F", "--from-template")
+    parser_create.add_argument("-E", "--edit")
     parser_create.add_argument("confs", nargs="+")
 
     parser_rm = subparsers.add_parser("rm")
@@ -327,6 +336,9 @@ def run_crepo(argv):
     parser_git = subparsers.add_parser("git")
     parser_git.add_argument("action", choices=["pull", "push"])
     parser_git.add_argument("-s", "--self", action="store_true", default=False)
+
+    parser_edit = subparsers.add_parser("edit")
+    parser_edit.add_argument("conf")
 
     args = parser.parse_args(argv)
 
